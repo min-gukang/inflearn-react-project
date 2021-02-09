@@ -39,7 +39,9 @@ function getNextState(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'newTodo':
       return {
-        // ...state, //이걸 왜 해준거지??  => 기존 state를 직접 수정하는게 아니고 state를 불변 객체로 관리하기 위해 이렇게 작성함. 
+       //이걸 왜 해준거지??  => 기존 state를 직접 수정하는게 아니고 state를 불변 객체로 관리하기 위해 이렇게 작성함.
+       //불변객체로 관리하면 좋은 점이 많다. 여기선 불변객체를 안 써도 됨.  
+       ...state,  
         todos : [...state.todos, new Todo(action.title, action.priority)],    
       }
   }
