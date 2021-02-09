@@ -1,12 +1,12 @@
-import { Command, CommandPrintTodos } from "./Command";
+import { Command, CommandNewTodo, CommandPrintTodos } from "./Command";
 import { waitForInput } from "./Input";
 import Todo from "./Todo";
-import { AppState, Priority } from "./type";
+import { Action, AppState, Priority } from "./type";
 
-const commands: Command[] = [new CommandPrintTodos()];
+const commands: Command[] = [new CommandPrintTodos(), new CommandNewTodo()];
 
 async function main() {
-  const state: AppState = {
+  let state: AppState = {
       todos: [
           new Todo('test1', Priority.High),
           new Todo('test1', Priority.Medium),
@@ -24,9 +24,23 @@ async function main() {
       const command = commands.find(item => item.key ===  key);
       console.log(command);
       if(command) {
-          await command.run(state);
+        const action = await command.run(state);
+        if(action) {
+          state = getNextState(state, action);
+        }
       }
   }
 }
 
 main();
+
+//이 함수의 역할은 현재상태와 Action을 입력으로 받아서 다음 상태를 반환을해주는 역할을 한다. 
+function getNextState(state: AppState, action: Action): AppState {
+  switch (action.type) {
+    case 'newTodo':
+      return {
+        ...state,
+        todos : [...state.todos, new Todo(action.title, action.priority)],    
+      }
+  }
+}
