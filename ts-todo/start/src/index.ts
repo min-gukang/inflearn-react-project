@@ -1,9 +1,9 @@
-import { Command, CommandNewTodo, CommandPrintTodos } from "./Command";
+import { Command, CommandDeleteTodo, CommandNewTodo, CommandPrintTodos } from "./Command";
 import { waitForInput } from "./Input";
 import Todo from "./Todo";
 import { Action, AppState, Priority } from "./type";
 
-const commands: Command[] = [new CommandPrintTodos(), new CommandNewTodo()];
+const commands: Command[] = [new CommandPrintTodos(), new CommandNewTodo(), new CommandDeleteTodo()];
 
 async function main() {
   let state: AppState = {
@@ -43,6 +43,12 @@ function getNextState(state: AppState, action: Action): AppState {
        //불변객체로 관리하면 좋은 점이 많다. 여기선 불변객체를 안 써도 됨.  
        ...state,  
         todos : [...state.todos, new Todo(action.title, action.priority)],    
+      };
+      //여기서 한가지 중요한 점은 case별로 나눴기 때문에 타입가드가 동작해서 각각의 action의 타입을 볼때 type별로 타입들이 다르다.
+    case 'deleteTodo': 
+      return {
+        ...state,
+        todos: state.todos.filter(item => item.id !== action.id)
       }
   }
 }

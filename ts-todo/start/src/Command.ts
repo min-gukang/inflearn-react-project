@@ -1,5 +1,5 @@
 import { waitForInput } from "./Input";
-import { ActionNewTodo, AppState, Priority, PRIORITY_NAME_MAP } from "./type";
+import { ActionDeleteTodo, ActionNewTodo, AppState, Priority, PRIORITY_NAME_MAP } from "./type";
 import { getIsValidEnumValue } from "./util";
 
 export abstract class Command { //추상클래스는 다른 클래스를 생성하는 용도
@@ -13,7 +13,7 @@ export abstract class Command { //추상클래스는 다른 클래스를 생성�
     //key를 눌렀을 때 실행할 함수 정의 
     //지금 여기서 구현 안할것이기 때문에 추상메소드로 정의 
     //async이기 때문에 Promise를 반환, 어떤 것도 리턴하지 않는 것으로 일단 void정의 
-    abstract async run(state: AppState): Promise<void | ActionNewTodo> 
+    abstract async run(state: AppState): Promise<void | ActionNewTodo | ActionDeleteTodo> 
 }
 
 export class CommandPrintTodos extends Command {
@@ -48,6 +48,29 @@ export class CommandNewTodo extends Command {
             title,
             priority
         }
+      }
+    }
+    static getIsPriority(priority: number): priority is Priority { //입력한 priority가 Priority enum에 속해 있는지 확인!
+        return getIsValidEnumValue(Priority, priority);
+    }
+}
+
+export class CommandDeleteTodo extends Command {
+    constructor() {
+        super('d', '할 일 제거하기'); //부모의 constructor 호출 
+    }
+    async run(state: AppState): Promise<void | ActionDeleteTodo> { 
+        //toDo id를 선택해야 하기 때문에 toDo목록을 보여주는 게 좋다. 
+        for (const todo of state.todos) {
+            const text = todo.toString();
+            console.log(text);
+        }
+        // 0(높음) ~ 2(낮음) => enum을 한글로 맵핑하기 위해서 map을 하나관리한다. => type.ts
+      const idStr = await waitForInput('press todo id to delete:');
+      const id = Number(idStr);
+      return {
+          type: 'deleteTodo',
+          id,
       }
     }
     static getIsPriority(priority: number): priority is Priority { //입력한 priority가 Priority enum에 속해 있는지 확인!
